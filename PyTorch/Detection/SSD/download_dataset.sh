@@ -1,5 +1,5 @@
 # Get COCO 2017 data sets
-COCO_DIR=${1:-"/coco"}
+COCO_DIR=${1:-"../../../Datasets/coco"}
 dir=$(pwd)
 mkdir $COCO_DIR; cd $COCO_DIR
 curl -O http://images.cocodataset.org/zips/train2017.zip; unzip train2017.zip
