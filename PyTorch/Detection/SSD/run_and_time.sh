@@ -10,7 +10,7 @@ BASEDIR=${BASEDIR:-'../../../Datasets'}
 DATASET=${DATASET:-coco2017}
 MODE=${MODE:-benchmark-training} # for training: 'benchmark-training'; for inference: 'benchmark-inference'
 BS=${BS:-32} # batch size
-AMP=${AMP:-'--amp'} # if '--amp' use Tensor Cores for benchmark training/inference
+AMP=${AMP:-''} # if '--amp' use Tensor Cores for benchmark training/inference
 CHECKPOINT_DIR=${CHECKPOINT_DIR:-checkpoints}
 EPOCHS=${EPOCHS:-65} # by default, training is running for 65 epochs
 
@@ -69,7 +69,7 @@ then
 
     ## report result
     result=$(( $end - $start ))
-    result_name="recommendation"
+    result_name="detection"
                       
     echo "RESULT,$result_name,$seed,$result,$start_fmt"
 

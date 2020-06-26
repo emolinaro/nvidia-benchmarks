@@ -106,15 +106,11 @@ def benchmark_train_loop(model, loss_func, epoch, optim, train_dataloader, val_d
         if bbox_offsets[-1].item() == 0:
             print("No labels in batch")
             continue
-        bbox, label = C.box_encoder(N, bbox, bbox_offsets, label, encoder.dboxes.cuda(), 0.5)
+        bbox, label = C.box_encoder(N, bbox, bbox_offsets, label, encoder.dboxes.cuda().type(torch.cuda.FloatTensor), 0.5)
 
         M = bbox.shape[0] // N
         bbox = bbox.view(N, M, 4)
         label = label.view(N, M)
-
-
-
-
 
         ploc, plabel = model(img)
         ploc, plabel = ploc.float(), plabel.float()
@@ -123,12 +119,11 @@ def benchmark_train_loop(model, loss_func, epoch, optim, train_dataloader, val_d
 
         if not args.no_cuda:
             label = label.cuda()
+
         gloc = Variable(trans_bbox, requires_grad=False)
         glabel = Variable(label, requires_grad=False)
 
-        loss = loss_func(ploc, plabel, gloc, glabel)
-
-
+        loss = loss_func(ploc.double(), plabel, gloc.double(), glabel)
 
         # loss scaling
         if args.amp:
