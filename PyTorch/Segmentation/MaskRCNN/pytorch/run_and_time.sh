@@ -5,28 +5,14 @@
 GPU=1
 NAME='MRCNN_TRAIN'
 CONFIG='configs/e2e_mask_rcnn_R_50_FPN_1x.yaml'
-PATH_TO_COCO='/home/sharath/Downloads/11419' #Location on COCO-2014 on local machine
-TRAIN='../../../../Datasets/train2014'
-TEST='../../../../Datasets/val2014'
-ANN='../../../../Datasets/annotations'
+GLOBAL_BATCH=32
+RESULTS='./results'
+LOGFILE="$RESULTS/joblog.log"
+DTYPE="$1"  # it can be 'float16' or 'float32' 
 
-#PATH_TO_RN50 - SCRIPT assumes R-50.pth exists in PATH_TO_COCO/models/R-50.pth
+mode=${2:-train}
 
-#Specify datasets of your choice with parameter DATASETS.TRAIN and DATASETS.TEST
-MOUNT_LOCATION='/datasets/coco'
-DOCKER_RESULTS='/results'
-LOGFILE='joblog.log'
-COMMAND="python -m torch.distributed.launch --nproc_per_node=$GPU tools/train_net.py \
-        --config-file $CONFIG \
-        DATASETS.TRAIN '($TRAIN, $ANN)' \
-        DATASETS.TEST '($TEST,)' \
-        SOLVER.BASE_LR 0.04 \
-        SOLVER.MAX_ITER 45000 \
-        SOLVER.STEPS \"(30000, 40000)\" \
-        SOLVER.IMS_PER_BATCH 4 \
-        DTYPE \"float16\" \
-        OUTPUT_DIR output \
-        | tee joblog.log"
+if ! [ -d "$RESULTS" ]; then mkdir $RESULTS; fi
 
 ## start timing
 start=$(date +%s)
@@ -34,9 +20,45 @@ start_fmt=$(date +%Y-%m-%d\ %r)
 echo "STARTING TIMING RUN AT $start_fmt"
 echo ""
 
-## run program 
-echo $COMMAND
-$COMMAND
+## run program
+
+if [ $mode = "train" ]; then
+
+    ## training benchmark
+    python -m torch.distributed.launch --nproc_per_node=$GPU tools/train_net.py \
+            --config-file $CONFIG \
+            --skip-test \
+            DATASETS.TRAIN "(\"coco_2014_train\", \"coco_2014_valminusminival\")" \
+            DATASETS.TEST "(\"coco_2014_val\",)" \
+            SOLVER.BASE_LR 0.04 \
+            SOLVER.MAX_ITER 3665 \
+            SOLVER.STEPS "(30000, 40000)" \
+            SOLVER.IMS_PER_BATCH $GLOBAL_BATCH \
+            DTYPE "$DTYPE" \
+            OUTPUT_DIR $RESULTS \
+            | tee $LOGFILE
+            
+    time=`cat $LOGFILE | grep -F 'maskrcnn_benchmark.trainer INFO: Total training time' | tail -n 1 | awk -F'(' '{print $2}' | awk -F' s ' '{print $1}' | egrep -o [0-9.]+`
+    statement=`cat $LOGFILE | grep -F 'maskrcnn_benchmark.trainer INFO: Total training time' | tail -n 1`
+    calc=$(echo $time 1.0 $GLOBAL_BATCH | awk '{ printf "%f", $2 * $3 / $1 }')
+    echo "Training perf is: "$calc" FPS"
+
+else
+    ## inference benchmark
+    python3 -m torch.distributed.launch --nproc_per_node=$GPU tools/test_net.py \
+        --config-file $CONFIG \
+        --skip-eval \
+        DATASETS.TEST "(\"coco_2014_minival\",)" \
+        DTYPE "$DTYPE" \
+        OUTPUT_DIR $FOLDER \
+        TEST.IMS_PER_BATCH 1 \
+        | tee $LOGFILE
+
+    time=`cat $LOGFILE | grep -F 'maskrcnn_benchmark.inference INFO: Total inference time' | tail -n 1 | awk -F'(' '{print $2}' | awk -F' s ' '{print $1}' | egrep -o [0-9.]+`
+    calc=$(echo $time 1.0 | awk '{ printf "%f", $2 / $1 }')
+    echo "Inference perf is: "$calc" FPS"
+
+fi
 
 ## end timing
 end=$(date +%s)
@@ -46,8 +68,6 @@ echo "ENDING TIMING RUN AT $end_fmt"
 
 ## report result
 result=$(( $end - $start ))
-result_name="recommendation"
-                      
-echo "RESULT,$result_name,$seed,$result,$start_fmt"
+result_name="segmentation"
 
-#docker run --runtime=nvidia -v $PATH_TO_COCO:/$MOUNT_LOCATION --rm --name=$NAME --shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864 --ipc=host -t -i $IMAGE bash -c "$COMMAND"
+echo "RESULT,$result_name,$seed,$result,$start_fmt"

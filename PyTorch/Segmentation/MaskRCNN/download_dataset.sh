@@ -21,6 +21,15 @@ then
 
 	dtrx train2014.zip
 	dtrx val2014.zip
+    
+    ## create symlinks to datasets
+    sudo mkdir -p /datasets/data
+    sudo chown -R $USER /datasets
+    cd /datasets/data
+    ln -s $DATA_DIR/train2014 train2014
+    ln -s $DATA_DIR/val2014 val2014
+    ln -s $DATA_DIR/annotations annotations
+    cd $DATA_DIR
 
 	echo "EXTRACTION COMPLETE"
 else
