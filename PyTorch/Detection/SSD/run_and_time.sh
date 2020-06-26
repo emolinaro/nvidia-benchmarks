@@ -7,7 +7,7 @@ set -e
 #   run_and_time.sh <random seed 1-5>
 
 BASEDIR=${BASEDIR:-'../../../Datasets'}
-DATASET=${DATASET:-coco}
+DATASET=${DATASET:-coco2017}
 MODE=${MODE:-benchmark-training} # for training: 'benchmark-training'; for inference: 'benchmark-inference'
 BS=${BS:-32} # batch size
 AMP=${AMP:-'--amp'} # if '--amp' use Tensor Cores for benchmark training/inference
