@@ -39,7 +39,7 @@ set -e
 export LANG=C.UTF-8
 export LC_ALL=C.UTF-8
 
-OUTPUT_DIR=${1:-"data/wmt16_de_en"}
+OUTPUT_DIR=${1:-"../../../../Datasets/wmt16_de_en"}
 echo "Writing to ${OUTPUT_DIR}. To change this, set the OUTPUT_DIR environment variable."
 
 OUTPUT_DIR_DATA="${OUTPUT_DIR}/data"
