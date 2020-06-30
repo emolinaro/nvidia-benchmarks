@@ -158,10 +158,10 @@ cat "${OUTPUT_DIR}/newstest2015.tok.clean.de" \
    > "${OUTPUT_DIR}/newstest_dev.tok.clean.de"
 
 # Filter datasets
-python3 scripts/filter_dataset.py \
+python3 filter_dataset.py \
    -f1 ${OUTPUT_DIR}/train.tok.clean.en \
    -f2 ${OUTPUT_DIR}/train.tok.clean.de
-python3 scripts/filter_dataset.py \
+python3 filter_dataset.py \
    -f1 ${OUTPUT_DIR}/newstest_dev.tok.clean.en \
    -f2 ${OUTPUT_DIR}/newstest_dev.tok.clean.de
 
