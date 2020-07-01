@@ -9,17 +9,18 @@ set -e
 THRESHOLD=1.0
 BASEDIR=${BASEDIR:-'../../../Datasets'}
 DATASET=${DATASET:-ml-20m}
-MODE=${MODE:-train}
 CHECKPOINT_DIR=${CHECKPOINT_DIR:-checkpoints}
 EPOCHS=${EPOCHS:-1000}
 LOCAL_RANK=${LOCAL_RANK:-0}
 
 
 # Get command line seed
-seed=${1:-1}
+seed=${1:-2}
 
 # Get command line nubber of GPUs
 num_gpus=${2:-1}
+
+mode=${3:-train}
 
 DATASET_DIR=${BASEDIR}/${DATASET}
 
@@ -33,7 +34,7 @@ then
     echo ""
 
     ## run program 
-    python -m torch.distributed.launch --nproc_per_node=${num_gpus} --use_env ncf.py --seed ${seed} --data ${DATASET_DIR} --mode ${MODE} --epochs ${EPOCHS} --checkpoint_dir ${CHECKPOINT_DIR}
+    python -m torch.distributed.launch --nproc_per_node=${num_gpus} --use_env ncf.py --seed ${seed} --data ${DATASET_DIR} --mode $mode --epochs ${EPOCHS} --checkpoint_dir ${CHECKPOINT_DIR}
 
     ## end timing
     end=$(date +%s)
