@@ -45,7 +45,7 @@ if [ $mode = "train" ]; then
 
 else
     ## inference benchmark
-    python3 -m torch.distributed.launch --nproc_per_node=$GPU tools/test_net.py \
+    python3 -m torch.distributed.launch --nproc_per_node=1 tools/test_net.py \
         --config-file $CONFIG \
         --skip-eval \
         DATASETS.TEST "(\"coco_2014_minival\",)" \

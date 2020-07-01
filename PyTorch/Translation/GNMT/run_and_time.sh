@@ -7,25 +7,23 @@ set -e
 #   run_and_time.sh <random seed 1-5>
 
 BASEDIR=${BASEDIR:-'../../../Datasets'}
-DATASET=${DATASET:-coco2017}
+DATASET=${DATASET:-wmt16_de_en}
 MODE=${MODE:-benchmark-training} # for training: 'benchmark-training'; for inference: 'benchmark-inference'
-BS=${BS:-32} # batch size
-AMP=${AMP:-''} # if '--amp' use Tensor Cores for benchmark training/inference
+BS=${BS:-1024} # batch size
+AMP=${AMP:-'f16'} # if 'f16' use mixed precision and 'f32' use single precision
 CHECKPOINT_DIR=${CHECKPOINT_DIR:-checkpoints}
-EPOCHS=${EPOCHS:-65} # by default, training is running for 65 epochs
+EPOCHS=${EPOCHS:-6} # by default, training is running for 65 epochs
 
 
 # Get command line seed
-seed=${1:-1}
+seed=${1:-2}
 
-# Get command line nubber of GPUs
+# Get command line number of GPUs
 num_gpus=${2:-1}
 
 # Get mode: training or inference
 mode=${3:-train}
-
-
-DATASET_DIR=${BASEDIR}/${DATASET}
+DATA_DIR=${BASEDIR}/${DATASET}
 
 if [ -d ${DATASET_DIR} ]
 then
@@ -40,23 +38,18 @@ then
     if [ $mode = "train" ]; then
         ## training benchmark
         python -m torch.distributed.launch --nproc_per_node=$num_gpus \
-                main.py --batch-size $BS \
-                        --mode benchmark-training \
-                        --epochs $EPOCHS \
-                        --benchmark-warmup 100 \
-                        --benchmark-iterations 200 \
-                        $AMP \
-                        --data $DATASET_DIR \
-                        --seed $seed 
+                train.py --train-global-batch-size $BS \
+                         --dataset-dir $DATA_DIR
+                         --math $AMP
+                         --results-dir results \
+                         --epochs $EPOCHS \
+                         --seed $seed 
     else
         ## inference benchmark on 1 GPU
-        python -m main.py --eval-batch-size $BS \
-                          --mode benchmark-inference \
-                          --benchmark-warmup 100 \
-                          --benchmark-iterations 200 \
-                          $AMP \
-                          --data $DATASET_DIR \
-                          --seed $seed 
+        python -m translate.py --input $DATA_DIR/newstest2014.en \
+                               --reference $DATA_DIR/newstest2014.de \
+                               --output /tmp/output \
+                               --model results/gnmt/model_best.pth
     
     fi
 
@@ -68,7 +61,7 @@ then
 
     ## report result
     result=$(( $end - $start ))
-    result_name="detection"
+    result_name="translation"
                       
     echo "RESULT,$result_name,$seed,$result,$start_fmt"
 
