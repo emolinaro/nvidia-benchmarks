@@ -19,6 +19,7 @@ LEARNING_RATE=${LEARNING_RATE:-'0.015'}
 GRADIENT_ACCUMULATION_STEPS=${GRADIENT_ACCUMULATION_STEPS:-1}
 PRINT_FREQUENCY=${PRINT_FREQUENCY:-1}
 USE_PROFILER=${USE_PROFILER:-'false'}
+PRECISION=${PRECISION:-'fp16'}
 
 PREC=""
 if [ "$PRECISION" = "fp16" ] ; then
@@ -74,13 +75,13 @@ then
     ## run program 
     if [ $mode = "train" ]; then
 
-        CMD="${PYTHON_ARGS} ${PROJECT_DIR}/train.py"
+        CMD="train.py"
         CMD+=" --batch_size=$BATCH_SIZE"
         CMD+=" --num_epochs=400"
         CMD+=" --output_dir=$RESULT_DIR"
         CMD+=" --model_toml=$MODEL_CONFIG"
         CMD+=" --lr=$LEARNING_RATE"
-        CMD+=" --seed=$SEED"
+        CMD+=" --seed=$seed"
         CMD+=" --optimizer=novograd"
         CMD+=" --gradient_accumulation_steps=$GRADIENT_ACCUMULATION_STEPS"
         CMD+=" --dataset_dir=$DATA_DIR"
@@ -97,14 +98,14 @@ then
         CMD+=" $PREC"
         CMD+=" $STEPS"
 
-        if [ "$NUM_GPUS" -gt 1  ] ; then
-           CMD="python3 -m torch.distributed.launch --nproc_per_node=$NUM_GPUS $CMD"
+        if [ "$num_gpus" -gt 1  ] ; then
+           CMD="python3 -m torch.distributed.launch --nproc_per_node=$num_gpus $CMD"
         else
            CMD="python3  $CMD"
         fi
 
         if [ "$CREATE_LOGFILE" = "true" ] ; then
-          export GBS=$(expr $BATCH_SIZE \* $NUM_GPUS)
+          export GBS=$(expr $BATCH_SIZE \* $num_gpus)
           printf -v TAG "jasper_train_benchmark_%s_gbs%d" "$PRECISION" $GBS
           DATESTAMP=`date +'%y%m%d%H%M%S'`
           LOGFILE="${RESULT_DIR}/${TAG}.${DATESTAMP}.log"
@@ -127,7 +128,7 @@ then
            set +x
 
            mean_latency=`cat "$LOGFILE" | grep 'Step time' | awk '{print $3}'  | tail -n +2 | egrep -o '[0-9.]+'| awk 'BEGIN {total=0} {total+=$1} END {printf("%.2f\n",total/NR)}'`
-           mean_throughput=`python -c "print($BATCH_SIZE*$NUM_GPUS/${mean_latency})"`
+           mean_throughput=`python -c "print($BATCH_SIZE*$num_gpus/${mean_latency})"`
            training_wer_per_pgu=`cat "$LOGFILE" | grep 'training_batch_WER'| awk '{print $2}'  | tail -n 1 | egrep -o '[0-9.]+'`
            training_loss_per_pgu=`cat "$LOGFILE" | grep 'Loss@Step'| awk '{print $4}'  | tail -n 1 | egrep -o '[0-9.]+'`
            final_eval_wer=`cat "$LOGFILE" | grep 'Evaluation WER'| tail -n 1 | egrep -o '[0-9.]+'`
