@@ -10,7 +10,7 @@ BASEDIR=${BASEDIR:-'../../../Datasets'}
 DATASET=${DATASET:-wmt16_de_en}
 MODE=${MODE:-benchmark-training} # for training: 'benchmark-training'; for inference: 'benchmark-inference'
 BS=${BS:-1024} # batch size
-AMP=${AMP:-'f16'} # if 'f16' use mixed precision and 'f32' use single precision
+AMP=${AMP:-'fp16'} # if 'fp16' use mixed precision and 'fp32' use single precision
 CHECKPOINT_DIR=${CHECKPOINT_DIR:-checkpoints}
 EPOCHS=${EPOCHS:-6} # by default, training is running for 65 epochs
 
