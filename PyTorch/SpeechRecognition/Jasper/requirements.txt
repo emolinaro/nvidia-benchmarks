@@ -7,3 +7,5 @@ toml
 soundfile
 ipdb
 sox
+inflect
+unidecode
