@@ -8,7 +8,9 @@ CONFIG='configs/e2e_mask_rcnn_R_50_FPN_1x.yaml'
 GLOBAL_BATCH=32
 RESULTS='./results'
 LOGFILE="$RESULTS/joblog.log"
-DTYPE="$1"  # it can be 'float16' or 'float32' 
+DTYPE=${DTYPE:-'fp16'}  # it can be 'fp16' or 'fp32' 
+
+num_gpus=${1:-1}
 
 mode=${2:-train}
 
@@ -25,7 +27,7 @@ echo ""
 if [ $mode = "train" ]; then
 
     ## training benchmark
-    python -m torch.distributed.launch --nproc_per_node=$GPU tools/train_net.py \
+    python -m torch.distributed.launch --nproc_per_node=$num_gpus tools/train_net.py \
             --config-file $CONFIG \
             --skip-test \
             DATASETS.TRAIN "(\"coco_2014_train\", \"coco_2014_valminusminival\")" \
