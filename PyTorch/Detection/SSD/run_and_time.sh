@@ -13,7 +13,7 @@ BS=${BS:-32} # batch size
 AMP=${AMP:-''} # if '--amp' use Tensor Cores for benchmark training/inference
 CHECKPOINT_DIR=${CHECKPOINT_DIR:-checkpoints}
 EPOCHS=${EPOCHS:-65} # by default, training is running for 65 epochs
-
+LOGFILE=${LOGFILE:-'results/joblog.txt'}
 
 # Get command line seed
 seed=${1:-1}
@@ -47,7 +47,8 @@ then
                         --benchmark-iterations 200 \
                         $AMP \
                         --data $DATASET_DIR \
-                        --seed $seed 
+                        --seed $seed \
+                        | tee $LOGFILE
     else
         ## inference benchmark on 1 GPU
         python -m main.py --eval-batch-size $BS \
@@ -56,7 +57,8 @@ then
                           --benchmark-iterations 200 \
                           $AMP \
                           --data $DATASET_DIR \
-                          --seed $seed 
+                          --seed $seed \
+                          | tee $LOGFILE 
     
     fi
 
