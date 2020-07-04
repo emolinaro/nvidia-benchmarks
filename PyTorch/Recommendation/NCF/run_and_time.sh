@@ -13,6 +13,7 @@ CHECKPOINT_DIR=${CHECKPOINT_DIR:-checkpoints}
 EPOCHS=${EPOCHS:-30}
 LOCAL_RANK=${LOCAL_RANK:-0}
 OPT_LEVEL=${OPT_LEVEL:-'O2'} # Optimization level for automatic mix precision: 'O0' ('O2') for full (mixed) prcision
+LOGFILE="results/joblog.txt"
 
 # Get command line seed
 seed=${1:-1}
@@ -41,7 +42,8 @@ then
                                        --mode $mode \
                                        --epochs ${EPOCHS} \
                                        --checkpoint_dir ${CHECKPOINT_DIR} \
-                                       --opt_level ${OPT_LEVEL}
+                                       --opt_level ${OPT_LEVEL} \
+                                       | tee $LOGFILE
 
     ## end timing
     end=$(date +%s)
