@@ -13,7 +13,7 @@ BS=${BS:-1024} # batch size
 AMP=${AMP:-'fp16'} # if 'fp16' use mixed precision and 'fp32' use single precision
 CHECKPOINT_DIR=${CHECKPOINT_DIR:-checkpoints}
 EPOCHS=${EPOCHS:-6} # by default, training is running for 65 epochs
-
+LOGFILE=${LOGFILE:-'results/joblog.txt'}
 
 # Get command line seed
 seed=${1:-2}
@@ -43,13 +43,15 @@ then
                          --math $AMP
                          --results-dir results \
                          --epochs $EPOCHS \
-                         --seed $seed 
+                         --seed $seed \
+			 | tee $LOGFILE
     else
         ## inference benchmark on 1 GPU
         python -m translate.py --input $DATA_DIR/newstest2014.en \
                                --reference $DATA_DIR/newstest2014.de \
                                --output /tmp/output \
-                               --model results/gnmt/model_best.pth
+                               --model results/gnmt/model_best.pth \
+			       | tee $LOGFILE
     
     fi
 
