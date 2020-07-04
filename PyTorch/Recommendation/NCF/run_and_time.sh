@@ -10,14 +10,14 @@ THRESHOLD=1.0
 BASEDIR=${BASEDIR:-'../../../Datasets'}
 DATASET=${DATASET:-ml-20m}
 CHECKPOINT_DIR=${CHECKPOINT_DIR:-checkpoints}
-EPOCHS=${EPOCHS:-1000}
+EPOCHS=${EPOCHS:-30}
 LOCAL_RANK=${LOCAL_RANK:-0}
-
+OPT_LEVEL=${OPT_LEVEL:-'O2'} # Optimization level for automatic mix precision: 'O0' ('O2') for full (mixed) prcision
 
 # Get command line seed
-seed=${1:-2}
+seed=${1:-1}
 
-# Get command line nubber of GPUs
+# Get command line number of GPUs
 num_gpus=${2:-1}
 
 mode=${3:-train}
@@ -34,7 +34,14 @@ then
     echo ""
 
     ## run program 
-    python -m torch.distributed.launch --nproc_per_node=${num_gpus} --use_env ncf.py --seed ${seed} --data ${DATASET_DIR} --mode $mode --epochs ${EPOCHS} --checkpoint_dir ${CHECKPOINT_DIR}
+    python -m torch.distributed.launch --nproc_per_node=${num_gpus} \
+                                       --use_env ncf.py \
+                                       --seed ${seed} \
+                                       --data ${DATASET_DIR} \
+                                       --mode $mode \
+                                       --epochs ${EPOCHS} \
+                                       --checkpoint_dir ${CHECKPOINT_DIR} \
+                                       --opt_level ${OPT_LEVEL}
 
     ## end timing
     end=$(date +%s)
