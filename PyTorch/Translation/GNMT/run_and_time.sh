@@ -40,7 +40,7 @@ then
         python -m torch.distributed.launch --nproc_per_node=$num_gpus \
                 train.py --train-global-batch-size $BS \
                          --dataset-dir $DATA_DIR
-                         --math $AMP
+                         --math $AMP \
                          --results-dir results \
                          --epochs $EPOCHS \
                          --seed $seed \
