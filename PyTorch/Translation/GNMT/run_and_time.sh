@@ -39,7 +39,7 @@ then
         ## training benchmark
         python -m torch.distributed.launch --nproc_per_node=$num_gpus \
                 train.py --train-global-batch-size $BS \
-                         --dataset-dir $DATA_DIR
+                         --dataset-dir $DATA_DIR \
                          --math $AMP \
                          --results-dir results \
                          --epochs $EPOCHS \
