@@ -10,9 +10,9 @@ THRESHOLD=1.0
 BASEDIR=${BASEDIR:-'../../../Datasets'}
 DATASET=${DATASET:-ml-20m}
 CHECKPOINT_DIR=${CHECKPOINT_DIR:-checkpoints}
-EPOCHS=${EPOCHS:-30}
+EPOCHS=${EPOCHS:-5}
 LOCAL_RANK=${LOCAL_RANK:-0}
-OPT_LEVEL=${OPT_LEVEL:-'O2'} # Optimization level for automatic mix precision: 'O0' ('O2') for full (mixed) prcision
+OPT_LEVEL=${OPT_LEVEL:-'O2'} # Optimization level for automatic mixed precision: 'O0' ('O2') for single (mixed) precision
 LOGFILE="results/joblog.txt"
 
 # Get command line seed
