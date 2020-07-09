@@ -22,7 +22,7 @@ cd weights
 ## Mask RCNN
 ## ====================== Mask RCNN ====================== ##
 BASE_URL="https://storage.googleapis.com/cloud-tpu-checkpoints/mask-rcnn/1555659850"
-DEST_DIR="mask-rcnn/1555659850"
+DEST_DIR="Datasets/mask-rcnn/1555659850"
 
 wget -N ${BASE_URL}/saved_model.pb -P ${DEST_DIR}
 wget -N ${BASE_URL}/variables/variables.data-00000-of-00001 -P ${DEST_DIR}/variables

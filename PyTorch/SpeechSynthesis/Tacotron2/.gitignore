@@ -2,3 +2,4 @@ __pycache__/
 /checkpoints/
 /output/
 nvlog.json
+LJSpeech-1.1
