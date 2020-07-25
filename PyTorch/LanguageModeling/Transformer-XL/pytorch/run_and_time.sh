@@ -33,6 +33,9 @@ if [ $mode = "train" ]; then
     ## training benchmark
     $CMD    train.py \
             --config_file wt103_base.yaml \
+            --config trainbench \
+            --local_batch_size $BS \
+            --max_step 40000 \
             --work_dir $RESULTS \
             --txtlog_file $LOGFILE \
             --save_all \
