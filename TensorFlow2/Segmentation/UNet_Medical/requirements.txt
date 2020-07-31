@@ -1,0 +1,4 @@
+Pillow
+tf2onnx
+munch
+git+https://github.com/NVIDIA/dllogger
