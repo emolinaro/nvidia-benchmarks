@@ -1,0 +1,11 @@
+pybind11
+Cython
+matplotlib
+opencv-python-headless
+mpi4py
+Pillow
+pytest
+pyyaml
+git+https://github.com/NVIDIA/dllogger
+git+https://github.com/NVIDIA/cocoapi#egg=pycocotools&subdirectory=PythonAPI
+
